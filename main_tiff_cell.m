@@ -1,18 +1,16 @@
-addpath('bfmatlab')
+% addpath('bfmatlab')
 % addpath('vis3d')
 % GetOMEData('sample.czi')
-image_raw = ReadImage6D('Cid-GFP_nos-tub-mcherry-03.czi');
-time = 7;
-z_start = 14;
-z_end = 24;
-
+% time=1;
 working_dir = pwd;
-
+fig_dir = uigetdir();
+[upperPath, deepestFolder, ~] = fileparts(fig_dir);
+file_list= getAllFiles(fig_dir);
 assoc_switch = 0;
 % [upperPath, deepestFolder, ~] = fileparts(file_list{1})
-for n = z_start:z_end
-    temp_image = czi_prep(image_raw,time,n);
-
+start_slice= 12
+end_slice= 19
+for n = start_slice:end_slice 
     total_pixel = 0;
     channel1_pixel = 0;
     channel2_pixel = 0;
@@ -21,35 +19,33 @@ for n = z_start:z_end
     k2_per = 0;
     ch1_assoc = 0;
     ch2_assoc = 0;
-
-     
-         
-     if n == z_start
-        if z_start == z_end
-            [background,rect] = imcrop(temp_image);
+    
+     if n == start_slice
+        if max(size(file_list))==1
+            [background,rect] = imcrop(imread(char(file_list(start_slice))));
            
         else
-            overlay_ref = temp_image./(z_end-z_start);
-            for m = z_start+1:z_end
-                image_temp = czi_prep(image_raw,time,m);
-                overlay_ref = overlay_ref + image_temp./(z_end-z_start);
+            overlay_ref = imread(char(file_list(start_slice)));
+            for m = start_slice+1:end_slice 
+                image_temp = imread(char(file_list(m)));
+                overlay_ref = overlay_ref + image_temp./(end_slice-start_slice);
             end
-            [background,rect_noise] = imcrop(overlay_ref);
+            [background,rect] = imcrop(overlay_ref);
         end
-        ch1_threshold = mean(background(:,:,1)) + 2 * std2(background(:,:,1));
-        ch2_threshold = mean(background(:,:,2)) + 2 * std2(background(:,:,2));
+        ch1_threshold = max(max(background(:,:,1)).*1);
+        ch2_threshold = max(max(background(:,:,2)).*1);
      end
     
     
-    if n == z_start
-        if z_start == z_end
-            [~,rect] = imcrop(temp_image);
+    if n == start_slice
+        if max(size(file_list))==1
+            [~,rect] = imcrop(imread(char(file_list(1))));
            
         else
-            overlay_ref =  temp_image./(z_end-z_start);
-            for m = z_start+1:z_end
-                image_temp =  czi_prep(image_raw,time, m);
-                overlay_ref = overlay_ref + image_temp./(z_end-z_start);
+            overlay_ref =  imread(char(file_list(1)));
+            for m = start_slice+1:end_slice 
+                image_temp = imread(char(file_list(m)));
+                overlay_ref = overlay_ref + image_temp./(end_slice-start_slice);
             end
             [~,rect] = imcrop(overlay_ref);
         end
@@ -58,8 +54,8 @@ for n = z_start:z_end
 %         hold on 
     end
     
-    
-    image_crop = imcrop(temp_image,rect);
+    image_raw = imread(char(file_list(n)));
+    image_crop = imcrop(image_raw,rect);
     channel1=image_crop(:,:,1);
     channel2=image_crop(:,:,2);
     %series, timepoint, zplane, channel, x, y
@@ -96,19 +92,7 @@ for n = z_start:z_end
         
     end
 end
-dlmwrite(strcat('timeseries','.csv'),'-','-append')
+dlmwrite(strcat('timeseries','.csv'),['-'],'-append')
 chdir(working_dir)
 
 % clear all
-% channel1=squeeze(image_raw{1}(1,1,24,1,:,:)/256);
-% channel2=squeeze(image_raw{1}(1,1,24,2,:,:)/256);
-% %series, timepoint, zplane, channel, x, y
-% channel1_new = threshold(channel1,30);
-% channel2_new = threshold(channel2,30);
-% 
-% [total_pixel, channel1_pixel, channel2_pixel,overlap] = overlap(channel1_new,channel2_new);
-% 
-% k1,k2 = kcoef(channel1_new,channel2_new);
-% 
-% % % disp(total_pixel, channel1_pixel, channel2_pixel,overlap);
-% k1,k2,k1*k2

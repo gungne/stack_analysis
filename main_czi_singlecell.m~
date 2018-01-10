@@ -153,7 +153,7 @@ dlmwrite(strcat(file_name,'.csv'),[k1_per,k2_per,k1_per*k2_per],'-append','preci
 % dlmwrite(strcat(file_name,'.csv'),[totalz_pixels_ch2,totalz_intensity_ch2,t_axis],'-append','precision',5);
 % dlmwrite(strcat(file_name,'_cluster','.csv'),[pixels_dist_mean,pixels_dist_var,t_axis],'-append','precision',5); 
  end
-cell_correlation = double(cell_weighted_intensity)/double(cell_intensity);
+cell_correlation = double(cell_weighted_intensity/cell_intensity);
 dlmwrite(strcat(file_name,'.csv'),[cell_correlation],'-append','precision',5);
 
 chdir(working_dir)

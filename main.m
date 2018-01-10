@@ -22,9 +22,7 @@ for n = z_start:z_end
     ch1_assoc = 0;
     ch2_assoc = 0;
 
-     
-         
-     if n == z_start
+    if n == z_start
         if z_start == z_end
             [background,rect] = imcrop(temp_image);
            
@@ -67,6 +65,8 @@ for n = z_start:z_end
     channel2_new = threshold(channel2,ch2_threshold);
 
     [total_pixel,channel1_pixel,channel2_pixel,overlap_pixel,total_intensity_ch1,total_intensity_ch2] = overlap(channel1_new,channel2_new);
+    [~,~,channel2_pixel_raw,~,~,total_intensity_ch2_raw] = overlap(channel1_new,channel2_new);
+    
     [k1_per,k2_per] = kcoef(double(channel1_new)./double(total_intensity_ch1),double(channel2_new)./double(total_intensity_ch2));
     
     %border association
@@ -92,7 +92,8 @@ for n = z_start:z_end
         end
     else
         my_cell = strcat( 'A',num2str(n) );
-        dlmwrite(strcat('timeseries','.csv'),[total_pixel,channel1_pixel,total_intensity_ch1,channel2_pixel,total_intensity_ch2,overlap_pixel,k1_per,k2_per,k1_per*k2_per],'-append');
+%         dlmwrite(strcat('timeseries','.csv'),[total_pixel,channel1_pixel,total_intensity_ch1,channel2_pixel,total_intensity_ch2,overlap_pixel,k1_per,k2_per,k1_per*k2_per],'-append');
+        dlmwrite(strcat('timeseries_wraw2','.csv'),[channel2_pixel,total_intensity_ch2,channel2_pixel_raw,total_intensity_ch2_raw],'-append');
         
     end
 end
